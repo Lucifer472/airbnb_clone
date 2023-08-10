@@ -1,10 +1,10 @@
 "use client";
 import Image from "next/image";
 
-const Avatar = () => {
+const Avatar = ({url}:{url?:string|null|undefined}) => {
   return (
     <Image
-      src={"/images/placeholder.jpg"}
+      src={url || "/images/placeholder.jpg"}
       alt="Place Holder"
       width={30}
       height={30}

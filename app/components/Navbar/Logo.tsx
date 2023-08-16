@@ -12,6 +12,7 @@ const Logo = () => {
       className="hideen md:block cursor-pointer object-contain"
       height={100}
       width={100}
+      onClick={() => router.push("/")}
     />
   );
 };

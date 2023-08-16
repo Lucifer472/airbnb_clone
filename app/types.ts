@@ -62,10 +62,41 @@ export interface IInputs {
   errors: FieldErrors;
 }
 
+export type safeUser = Omit<
+  User,
+  "createdAt" | "updatedAt" | "emailVerified"
+> & { createdAt: string; updatedAt: string; emailVerified: string | null };
 export interface INavbarProps {
-  currentUser?: User | null;
+  currentUser?: safeUser | null;
 }
 
 export interface IUserMenuProps {
-  user?: User | null;
+  user?: safeUser | null;
+}
+
+export interface ICategoryProps {
+  label: string;
+  icon: IconType;
+  selected?: boolean;
+}
+
+export interface ICategoryInputProps extends ICategoryProps {
+  onClick: (value: string) => void;
+}
+
+export type CountrySelectValue = {
+  value: string;
+  flag: string;
+  latling: number[];
+  label: string;
+  region: string;
+};
+
+export interface ICountrySelectProps {
+  value?: CountrySelectValue;
+  onChange: (value: CountrySelectValue) => void;
+}
+
+export interface IMapProps {
+  center?: number[];
 }

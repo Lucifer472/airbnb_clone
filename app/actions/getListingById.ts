@@ -1,10 +1,12 @@
 import prisma from "@/app/libs/prismadb";
 
-interface IListing {
+interface IParams {
   listingId?: string;
 }
 
-export default async function getListingById(params: IListing) {
+export default async function getListingById(
+  params: IParams
+) {
   try {
     const { listingId } = params;
 
@@ -13,11 +15,13 @@ export default async function getListingById(params: IListing) {
         id: listingId,
       },
       include: {
-        user: true,
-      },
+        user: true
+      }
     });
 
-    if (!listing) return null;
+    if (!listing) {
+      return null;
+    }
 
     return {
       ...listing,
@@ -26,8 +30,9 @@ export default async function getListingById(params: IListing) {
         ...listing.user,
         createdAt: listing.user.createdAt.toString(),
         updatedAt: listing.user.updatedAt.toString(),
-        emailVerified: listing.user.emailVerified?.toString() || null,
-      },
+        emailVerified: 
+          listing.user.emailVerified?.toString() || null,
+      }
     };
   } catch (error: any) {
     throw new Error(error);

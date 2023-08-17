@@ -1,20 +1,25 @@
-export const dynamic = "force-dynamic";
-import getCurrentUser from "./actions/getCurrentUser";
-import getListing from "./actions/getListings";
+import Container from "@/app/components/Container";
+import ListingCard from "@/app/components/listings/ListingCard";
+import EmptyState from "@/app/components/EmptyState";
 
-import { ClientOnly, Container, Empty, ListingCard } from "./components";
-import { IParamsList } from "./types";
+import getListings, { 
+  IListingsParams
+} from "@/app/actions/getListings";
+import getCurrentUser from "@/app/actions/getCurrentUser";
+import ClientOnly from "./components/ClientOnly";
 
 interface HomeProps {
-  searchParams: IParamsList;
-}
-export default async function Home({ searchParams }: HomeProps) {
-  const listing = await getListing(searchParams);
+  searchParams: IListingsParams
+};
+
+const Home = async ({ searchParams }: HomeProps) => {
+  const listings = await getListings(searchParams);
   const currentUser = await getCurrentUser();
-  if (listing?.length === 0) {
+
+  if (listings.length === 0) {
     return (
       <ClientOnly>
-        <Empty showReset />
+        <EmptyState showReset />
       </ClientOnly>
     );
   }
@@ -22,12 +27,30 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <ClientOnly>
       <Container>
-        <div className="pt-24 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-          {listing?.map((list: any) => (
-            <ListingCard user={currentUser} key={list.id} data={list} />
+        <div 
+          className="
+            pt-24
+            grid 
+            grid-cols-1 
+            sm:grid-cols-2 
+            md:grid-cols-3 
+            lg:grid-cols-4
+            xl:grid-cols-5
+            2xl:grid-cols-6
+            gap-8
+          "
+        >
+          {listings.map((listing: any) => (
+            <ListingCard
+              currentUser={currentUser}
+              key={listing.id}
+              data={listing}
+            />
           ))}
         </div>
       </Container>
     </ClientOnly>
-  );
+  )
 }
+
+export default Home;

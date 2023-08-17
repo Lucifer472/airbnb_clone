@@ -1,17 +1,26 @@
-"use client";
-import useRentModal from "@/app/hooks/useRentModal";
-import Modals from "./Modals";
+'use client';
+
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import { 
+  FieldValues, 
+  SubmitHandler, 
+  useForm
+} from 'react-hook-form';
+import dynamic from 'next/dynamic'
+import { useRouter } from 'next/navigation';
 import { useMemo, useState } from "react";
-import Heading from "../Heading";
-import { categories } from "@/app/Constant";
-import { CategoriesInput, CountrySelect, Input } from "../";
-import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
-import dynamic from "next/dynamic";
-import Counter from "../Input/Counter";
-import ImageUpload from "../Input/ImageUpload";
-import axios from "axios";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+
+import useRentModal from '@/app/hooks/useRentModal';
+
+import Modal from "./Modal";
+import Counter from "../inputs/Counter";
+import CategoryInput from '../inputs/CategoryInput';
+import CountrySelect from "../inputs/CountrySelect";
+import { categories } from '../navbar/Categories';
+import ImageUpload from '../inputs/ImageUpload';
+import Input from '../inputs/Input';
+import Heading from '../Heading';
 
 enum STEPS {
   CATEGORY = 0,
@@ -25,101 +34,121 @@ enum STEPS {
 const RentModal = () => {
   const router = useRouter();
   const rentModal = useRentModal();
-  const [step, setStep] = useState(STEPS.CATEGORY);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const {
-    register,
+  const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState(STEPS.CATEGORY);
+
+  const { 
+    register, 
     handleSubmit,
     setValue,
     watch,
-    formState: { errors },
+    formState: {
+      errors,
+    },
     reset,
   } = useForm<FieldValues>({
     defaultValues: {
-      category: "",
+      category: '',
       location: null,
       guestCount: 1,
       roomCount: 1,
       bathroomCount: 1,
-      imageSrc: "",
+      imageSrc: '',
       price: 1,
-      title: "",
-      description: "",
-    },
+      title: '',
+      description: '',
+    }
   });
 
-  const category = watch("category");
-  const location = watch("location");
-  const guestCount = watch("guestCount");
-  const roomCount = watch("roomCount");
-  const bathroomCount = watch("bathroomCount");
-  const imageSrc = watch("imageSrc");
+  const location = watch('location');
+  const category = watch('category');
+  const guestCount = watch('guestCount');
+  const roomCount = watch('roomCount');
+  const bathroomCount = watch('bathroomCount');
+  const imageSrc = watch('imageSrc');
 
-  const Map = useMemo(
-    () => dynamic(() => import("../Map"), { ssr: false }),
-    [location]
-  );
-  const customeSetValue = (id: string, value: any) => {
+  const Map = useMemo(() => dynamic(() => import('../Map'), { 
+    ssr: false 
+  }), [location]);
+
+
+  const setCustomValue = (id: string, value: any) => {
     setValue(id, value, {
-      shouldValidate: true,
       shouldDirty: true,
       shouldTouch: true,
-    });
-  };
+      shouldValidate: true
+    })
+  }
 
   const onBack = () => {
-    setStep((v) => v - 1);
-  };
+    setStep((value) => value - 1);
+  }
+
   const onNext = () => {
-    setStep((v) => v + 1);
-  };
+    setStep((value) => value + 1);
+  }
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
-    if (step !== STEPS.PRICE) return onNext();
-
+    if (step !== STEPS.PRICE) {
+      return onNext();
+    }
+    
     setIsLoading(true);
-    axios
-      .post("/api/listings", data)
-      .then(() => {
-        toast.success("Listing Succesfully Created!");
-        router.refresh();
-        reset();
-        setStep(STEPS.CATEGORY);
-        rentModal.onClose();
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error("Something Went Wrong!");
-      })
-      .finally(() => setIsLoading(false));
-  };
+
+    axios.post('/api/listings', data)
+    .then(() => {
+      toast.success('Listing created!');
+      router.refresh();
+      reset();
+      setStep(STEPS.CATEGORY)
+      rentModal.onClose();
+    })
+    .catch(() => {
+      toast.error('Something went wrong.');
+    })
+    .finally(() => {
+      setIsLoading(false);
+    })
+  }
 
   const actionLabel = useMemo(() => {
     if (step === STEPS.PRICE) {
-      return "Create";
+      return 'Create'
     }
-    return "Next";
+
+    return 'Next'
   }, [step]);
 
-  const secondyActionLabel = useMemo(() => {
+  const secondaryActionLabel = useMemo(() => {
     if (step === STEPS.CATEGORY) {
-      return undefined;
+      return undefined
     }
-    return "Back";
+
+    return 'Back'
   }, [step]);
 
   let bodyContent = (
     <div className="flex flex-col gap-8">
       <Heading
-        title="Which of these Describes you're place well!"
-        subtitle="Pick a Category"
+        title="Which of these best describes your place?"
+        subtitle="Pick a category"
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto">
+      <div 
+        className="
+          grid 
+          grid-cols-1 
+          md:grid-cols-2 
+          gap-3
+          max-h-[50vh]
+          overflow-y-auto
+        "
+      >
         {categories.map((item) => (
-          <div className="col-span-1" key={item.label}>
-            <CategoriesInput
-              onClick={(category) => customeSetValue("category", category)}
+          <div key={item.label} className="col-span-1">
+            <CategoryInput
+              onClick={(category) => 
+                setCustomValue('category', category)}
               selected={category === item.label}
               label={item.label}
               icon={item.icon}
@@ -128,20 +157,20 @@ const RentModal = () => {
         ))}
       </div>
     </div>
-  );
+  )
 
   if (step === STEPS.LOCATION) {
     bodyContent = (
       <div className="flex flex-col gap-8">
         <Heading
-          title="Where you're place is located?"
-          subtitle="Help user find you!"
+          title="Where is your place located?"
+          subtitle="Help guests find you!"
         />
-        <CountrySelect
-          onChange={(value) => customeSetValue("location", value)}
-          value={location}
+        <CountrySelect 
+          value={location} 
+          onChange={(value) => setCustomValue('location', value)} 
         />
-        <Map center={location?.latling} />
+        <Map center={location?.latlng} />
       </div>
     );
   }
@@ -150,31 +179,31 @@ const RentModal = () => {
     bodyContent = (
       <div className="flex flex-col gap-8">
         <Heading
-          title="Share some basic info about your place"
-          subtitle="what amentites do you have?"
+          title="Share some basics about your place"
+          subtitle="What amenitis do you have?"
         />
-        <Counter
-          title="Guest"
-          subTitle="How many guest do you allow?"
+        <Counter 
+          onChange={(value) => setCustomValue('guestCount', value)}
           value={guestCount}
-          onChange={(value) => customeSetValue("guestCount", value)}
+          title="Guests" 
+          subtitle="How many guests do you allow?"
         />
         <hr />
-        <Counter
-          title="Rooms"
-          subTitle="How many Rooms do you have?"
+        <Counter 
+          onChange={(value) => setCustomValue('roomCount', value)}
           value={roomCount}
-          onChange={(value) => customeSetValue("roomCount", value)}
+          title="Rooms" 
+          subtitle="How many rooms do you have?"
         />
         <hr />
-        <Counter
-          title="Bathroom"
-          subTitle="How many bathroom do you have?"
+        <Counter 
+          onChange={(value) => setCustomValue('bathroomCount', value)}
           value={bathroomCount}
-          onChange={(value) => customeSetValue("bathroomCount", value)}
+          title="Bathrooms" 
+          subtitle="How many bathrooms do you have?"
         />
       </div>
-    );
+    )
   }
 
   if (step === STEPS.IMAGES) {
@@ -182,14 +211,14 @@ const RentModal = () => {
       <div className="flex flex-col gap-8">
         <Heading
           title="Add a photo of your place"
-          subtitle="show Guest what your place looks like!"
+          subtitle="Show guests what your place looks like!"
         />
         <ImageUpload
+          onChange={(value) => setCustomValue('imageSrc', value)}
           value={imageSrc}
-          onChange={(value) => customeSetValue("imageSrc", value)}
         />
       </div>
-    );
+    )
   }
 
   if (step === STEPS.DESCRIPTION) {
@@ -197,7 +226,7 @@ const RentModal = () => {
       <div className="flex flex-col gap-8">
         <Heading
           title="How would you describe your place?"
-          subtitle="Short and Sweet works best!"
+          subtitle="Short and sweet works best!"
         />
         <Input
           id="title"
@@ -217,42 +246,43 @@ const RentModal = () => {
           required
         />
       </div>
-    );
+    )
   }
 
   if (step === STEPS.PRICE) {
     bodyContent = (
       <div className="flex flex-col gap-8">
         <Heading
-          title="Now, set your Price"
-          subtitle="How much you charge per night?"
+          title="Now, set your price"
+          subtitle="How much do you charge per night?"
         />
         <Input
           id="price"
           label="Price"
-          formatPrice
-          type="number"
+          formatPrice 
+          type="number" 
           disabled={isLoading}
           register={register}
           errors={errors}
           required
         />
       </div>
-    );
+    )
   }
 
   return (
-    <Modals
+    <Modal
+      disabled={isLoading}
       isOpen={rentModal.isOpen}
-      onClose={rentModal.onClose}
-      onSubmit={handleSubmit(onSubmit)}
+      title="Airbnb your home!"
       actionLabel={actionLabel}
-      secondryAction={step === STEPS.CATEGORY ? undefined : onBack}
-      secondryLabel={secondyActionLabel}
-      title="Airbnb your Home!"
+      onSubmit={handleSubmit(onSubmit)}
+      secondaryActionLabel={secondaryActionLabel}
+      secondaryAction={step === STEPS.CATEGORY ? undefined : onBack}
+      onClose={rentModal.onClose}
       body={bodyContent}
     />
   );
-};
+}
 
 export default RentModal;

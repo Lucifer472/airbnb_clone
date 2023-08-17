@@ -1,28 +1,40 @@
+
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import getListingById from "@/app/actions/getListingById";
-import { ClientOnly, Empty } from "@/app/components";
-import { IParamsProps } from "@/app/types";
+import getReservations from "@/app/actions/getReservations";
+
+import ClientOnly from "@/app/components/ClientOnly";
+import EmptyState from "@/app/components/EmptyState";
+
 import ListingClient from "./ListingClient";
-import getReservation from "@/app/actions/getReservations";
 
-const Listing = async ({ params }: { params: IParamsProps }) => {
-  const list = await getListingById(params);
-  const res = await getReservation(params);
-  const user = await getCurrentUser();
+interface IParams {
+  listingId?: string;
+}
 
-  if (!list) {
+const ListingPage = async ({ params }: { params: IParams }) => {
+
+  const listing = await getListingById(params);
+  const reservations = await getReservations(params);
+  const currentUser = await getCurrentUser();
+
+  if (!listing) {
     return (
       <ClientOnly>
-        <Empty />
+        <EmptyState />
       </ClientOnly>
     );
   }
 
   return (
     <ClientOnly>
-      <ListingClient listing={list} user={user} reservation={res} />
+      <ListingClient
+        listing={listing}
+        reservations={reservations}
+        currentUser={currentUser}
+      />
     </ClientOnly>
   );
-};
-
-export default Listing;
+}
+ 
+export default ListingPage;

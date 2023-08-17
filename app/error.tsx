@@ -1,53 +1,24 @@
-"use client";
+'use client';
 
 import { useEffect } from "react";
 
-export default function Error({
-  error,
-  reset,
-}: {
-  error: Error;
-  reset: () => void;
-}) {
+import EmptyState from "@/app/components/EmptyState";
+
+interface ErrorStateProps {
+  error: Error
+}
+
+const ErrorState: React.FC<ErrorStateProps> = ({ error }) => {
   useEffect(() => {
     console.error(error);
   }, [error]);
 
-  return (
-    <div
-      className="h-[60vh]
-      flex flex-col gap-2
-      justify-center
-      items-center"
-    >
-      <div className="text-center">
-        <div className="text-2xl font-bold">Uh Oh</div>
-        <div className="font-light text-neutral-500 mt-2">
-          Something went wrong!
-        </div>
-      </div>
-      <div className="w-48 mt-4">
-        <button
-          onClick={
-            // Attempt to recover by trying to re-render the segment
-            () => reset()
-          }
-          className=" 
-            relative
-            disabled:opacity-70
-            disabled:cursor-not-allowed
-            rounded-lg
-            hover:opacity-80
-            transition
-            w-full
-            bg-white
-            border-black
-            text-black
-            "
-        >
-          Reset
-        </button>
-      </div>
-    </div>
-  );
+  return ( 
+    <EmptyState
+      title="Uh Oh"
+      subtitle="Something went wrong!"
+    />
+   );
 }
+ 
+export default ErrorState;

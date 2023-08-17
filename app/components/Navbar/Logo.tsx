@@ -1,19 +1,21 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const Logo = () => {
   const router = useRouter();
-  return (
+
+  return ( 
     <Image
-      src="/images/logo.png"
-      alt="Logo"
-      className="hideen md:block cursor-pointer object-contain"
-      height={100}
-      width={100}
-      onClick={() => router.push("/")}
+      onClick={() => router.push('/')}
+      className="hidden md:block cursor-pointer" 
+      src="/images/logo.png" 
+      height="100" 
+      width="100" 
+      alt="Logo" 
     />
-  );
-};
+   );
+}
+ 
 export default Logo;

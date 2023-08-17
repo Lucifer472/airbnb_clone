@@ -20,8 +20,9 @@ const RegisterModal = () => {
   const [isLoadning, setIsLoadning] = useState(false);
 
   const toggle = useCallback(() => {
-    loginModal.onOpen();
+    toast.success("Success!");
     registerModal.onClose();
+    loginModal.onOpen();
   }, [loginModal, registerModal]);
 
   const {

@@ -121,7 +121,7 @@ export interface IEmptyProps {
 }
 
 export interface IListingCardProps {
-  data?: safeListing;
+  data: safeListing;
   reservation?: SafeReservation;
   onAction?: (id: string) => void;
   disabled?: boolean;
